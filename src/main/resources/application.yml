@@ -1,0 +1,12 @@
+"%dev":
+  quarkus:
+    http:
+      port: 8085
+
+    log:
+      level:
+        INFO
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        enable: true
+        level: DEBUG
