@@ -3,6 +3,24 @@
     http:
       port: 8085
 
+#  docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 --name ffs_ca_db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin
+#  -e POSTGRES_DB=ffs_ca -p 5432:5432 postgres:10.5
+    datasource:
+      db-kind: postgresql
+      username: admin
+      password: admin
+      reactive:
+        url: postgresql://localhost:5432/ffs_ca
+      jdbc:
+        url: jdbc:postgresql://localhost:5432/ffs_ca
+
+#    flyway:
+#      validate-on-migrate: false
+#      clean-at-start: true
+#      migrate-at-start: true
+#      connect-retries: 10
+#      schemas: ffs_ca
+
     log:
       level:
         INFO
