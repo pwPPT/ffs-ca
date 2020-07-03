@@ -11,15 +11,17 @@
       password: admin
       reactive:
         url: postgresql://localhost:5432/ffs_ca
+#        url: postgresql://localhost:5434/ffs_ca
       jdbc:
         url: jdbc:postgresql://localhost:5432/ffs_ca
+#        url: jdbc:postgresql://localhost:5434/ffs_ca
 
-#    flyway:
-#      validate-on-migrate: false
-#      clean-at-start: true
-#      migrate-at-start: true
-#      connect-retries: 10
-#      schemas: ffs_ca
+    flyway:
+      validate-on-migrate: false
+      clean-at-start: true
+      migrate-at-start: true
+      connect-retries: 10
+      schemas: ffs_ca
 
     log:
       level:

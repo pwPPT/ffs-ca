@@ -31,6 +31,36 @@ public class Alpha {
     private final AuthService authService;
     private static final Logger LOGGER = Logger.getLogger(Alpha.class);
 
+    @POST
+    @Path("/token")
+    public Uni<Response> getToken() {
+        // create new record in AUTH_STATE table and send back generated token (id)
+        // response format: {"token": <token>}
+        return Uni.createFrom().item(Response.ok("Token endpoint.").build());
+    }
+
+    @POST
+    @Path("/X")
+    public Uni<Response> generateVectorA() {
+        // set X value for corresponding token value in AUTH_STATE
+        // generate random vector 'A' of 0 - 1 values, and update it in AUTH_STATE (len(vector) == len(public_key))
+        // send back generated 'A'
+        // response format: {"A": [...ints...]}
+        return Uni.createFrom().item(Response.ok("X endpoint.").build());
+    }
+
+    @POST
+    @Path("/Y")
+    public Uni<Response> authUser() {
+        // verify user
+        // update number of positive tries, and return response
+        // response format:
+        // { "repeat": <true if we want user to authenticate again, false otherwise>,
+        //   "is_authenticated": <true if authentication is finished, false if not yet authenticated or authentication failed>,
+        //   "session_id": <generated session id if authenticated, null otherwise> }
+        return Uni.createFrom().item(Response.ok("Y endpoint.").build());
+    }
+
     @GET
     @Path("/auth")
     public Uni<Response> authenticate() {
