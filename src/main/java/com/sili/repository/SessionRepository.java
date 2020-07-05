@@ -1,5 +1,6 @@
 package com.sili.repository;
 
+import com.sili.model.SecretTO;
 import com.sili.model.SessionTO;
 import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
@@ -16,7 +17,6 @@ public class SessionRepository {
     private final io.vertx.mutiny.pgclient.PgPool client;
 
     private static SessionTO from(Row row) {
-        System.out.println("SESSION WAS SAVED");
         return SessionTO.of(
             row.getUUID("token"),
             row.getInteger("user_id").longValue(),
@@ -25,7 +25,6 @@ public class SessionRepository {
     }
 
     public Uni<SessionTO> saveSession(SessionTO session) {
-        System.out.println("EXECUTE SESSION INSERT");
         return client.preparedQuery(
             "INSERT INTO " + TABLE_NAME
                 + " (token, user_id) VALUES"
@@ -35,6 +34,20 @@ public class SessionRepository {
             .execute()
             .onItem().apply(RowSet::iterator)
             .onItem().invoke(iter -> System.out.println("NEXT: " + iter.hasNext()))
+            .onItem().apply(iterator ->
+                iterator.hasNext()
+                    ? from(iterator.next())
+                    : null
+            );
+    }
+
+    public Uni<SessionTO> getSession(String token) {
+        return client.preparedQuery(
+            "SELECT * FROM " + TABLE_NAME
+                + " WHERE token = '" + token + "'"
+                + " AND authentication_time >= NOW() - INTERVAL '2 minutes'")
+            .execute()
+            .onItem().apply(RowSet::iterator)
             .onItem().apply(iterator ->
                 iterator.hasNext()
                     ? from(iterator.next())

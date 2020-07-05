@@ -1,11 +1,17 @@
 package com.sili.controller;
 
+import com.sili.exceptions.StateNotFoundException;
+import com.sili.exceptions.UnauthorizedException;
+import com.sili.exceptions.UserAlreadyExistException;
+import com.sili.exceptions.UserNotFoundException;
 import com.sili.model.RegisterTO;
+import com.sili.model.SessionRequestTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
 import com.sili.model.YValueTO;
 import com.sili.service.AuthService;
 import com.sili.service.RegisterService;
+import com.sili.service.SessionService;
 import io.smallrye.mutiny.Uni;
 import io.vertx.pgclient.PgException;
 import java.time.Duration;
@@ -29,6 +35,7 @@ public class Alpha {
 
     private final RegisterService registerService;
     private final AuthService authService;
+    private final SessionService sessionService;
     private static final Logger LOGGER = Logger.getLogger(Alpha.class);
 
     @POST
@@ -66,6 +73,14 @@ public class Alpha {
     }
 
     @POST
+    @Path("/secret")
+    public Uni<Response> getSecret(@RequestBody SessionRequestTO entity) {
+        return Uni.createFrom().item(entity)
+            .onItem().produceUni(sessionService::getSecret)
+            .onItem().produceUni(u -> mapToResponse(u, "secret", Status.UNAUTHORIZED));
+    }
+
+    @POST
     @Path("/register")
     public Uni<Response> register(@RequestBody RegisterTO entity) {
         return Uni.createFrom().item(entity)
@@ -92,6 +107,26 @@ public class Alpha {
             .onFailure(PgException.class)
             .recoverWithUni(Uni.createFrom()
                 .item(Response.status(Response.Status.INTERNAL_SERVER_ERROR))
+                .onItem().apply(Response.ResponseBuilder::build))
+
+            .onFailure(UnauthorizedException.class)
+            .recoverWithUni(Uni.createFrom()
+                .item(Response.status(Status.UNAUTHORIZED))
+                .onItem().apply(Response.ResponseBuilder::build))
+
+            .onFailure(UserAlreadyExistException.class)
+            .recoverWithUni(Uni.createFrom()
+                .item(Response.status(Status.BAD_REQUEST))
+                .onItem().apply(Response.ResponseBuilder::build))
+
+            .onFailure(UserNotFoundException.class)
+            .recoverWithUni(Uni.createFrom()
+                .item(Response.status(Status.NOT_FOUND))
+                .onItem().apply(Response.ResponseBuilder::build))
+
+            .onFailure(StateNotFoundException.class)
+            .recoverWithUni(Uni.createFrom()
+                .item(Response.status(Status.NOT_FOUND))
                 .onItem().apply(Response.ResponseBuilder::build));
     }
 

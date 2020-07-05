@@ -3,7 +3,7 @@ package com.sili.repository;
 import com.sili.model.AValueTO;
 import com.sili.model.SessionResponseTO;
 import com.sili.model.SuccessTO;
-import com.sili.model.TokenTO;
+import com.sili.model.TokenResponseTO;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.sqlclient.Row;
@@ -23,8 +23,8 @@ public class AuthStateRepository {
 
     private final io.vertx.mutiny.pgclient.PgPool client;
 
-    private static TokenTO from(Row row) {
-        return new TokenTO(
+    private static TokenResponseTO from(Row row) {
+        return new TokenResponseTO(
             row.getUUID("token"),
             row.getInteger("reps"),
             row.getInteger("succ_tries")
@@ -101,7 +101,7 @@ public class AuthStateRepository {
             );
     }
 
-    public Uni<TokenTO> createAuthState(Tuple3<UUID, Long, Long> initValues) {
+    public Uni<TokenResponseTO> createAuthState(Tuple3<UUID, Long, Long> initValues) {
         return client.preparedQuery(
             "INSERT INTO " + TABLE_NAME
                 + " (token, user_id, reps) VALUES"

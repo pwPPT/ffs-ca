@@ -1,6 +1,5 @@
 package com.sili.model;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TokenTO {
+public class SessionRequestTO {
 
-    UUID token;
-    Integer reps;
-    Integer succTries;
+    String session_id;
 }

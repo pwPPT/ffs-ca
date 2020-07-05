@@ -6,7 +6,7 @@ import com.sili.exceptions.UserNotFoundException;
 import com.sili.model.AValueTO;
 import com.sili.model.SessionResponseTO;
 import com.sili.model.SessionTO;
-import com.sili.model.TokenTO;
+import com.sili.model.TokenResponseTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
 import com.sili.model.YValueTO;
@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthUtils authUtils;
 
     @Override
-    public Uni<TokenTO> generateToken(UserTO user) {
+    public Uni<TokenResponseTO> generateToken(UserTO user) {
         return userRepository.getUserIdByUsername(user.getUsername())
             .onItem().ifNull().failWith(UserNotFoundException::new)
             .onItem().produceUni(authStateRepository::checkAuthState)
