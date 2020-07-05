@@ -5,6 +5,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,19 @@ public class UserRepository {
             row.getString("username"),
             Arrays.asList(row.getLongArray("public_key"))
         );
+    }
+
+    public Uni<List<Long>> getKeyByUserId(Long userId) {
+        return client.preparedQuery(
+            "SELECT * FROM " + TABLE_NAME
+                + " WHERE id = " + userId)
+            .execute()
+            .onItem().apply(RowSet::iterator)
+            .onItem().apply(iterator ->
+                iterator.hasNext()
+                    ? Arrays.asList(iterator.next().getLongArray("public_key"))
+                    : null
+            );
     }
 
     public Uni<RegisterTO> getUserByUsername(String username) {

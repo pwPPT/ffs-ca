@@ -2,6 +2,7 @@ package com.sili.controller;
 
 import com.sili.model.RegisterTO;
 import com.sili.model.UserTO;
+import com.sili.model.XValueTO;
 import com.sili.service.AuthService;
 import com.sili.service.RegisterService;
 import io.smallrye.mutiny.Uni;
@@ -32,9 +33,6 @@ public class Alpha {
     @POST
     @Path("/token")
     public Uni<Response> getToken(@RequestBody UserTO entity) {
-        // create new record in AUTH_STATE table and send back generated token (id)
-        // response format: {"token": <token>}
-
         return Uni.createFrom().item(entity)
             .onItem().produceUni(authService::generateToken)
             .onItem().produceUni(u -> mapToResponse(u, "token", Status.NOT_FOUND));
@@ -42,12 +40,14 @@ public class Alpha {
 
     @POST
     @Path("/X")
-    public Uni<Response> generateVectorA() {
+    public Uni<Response> generateVectorA(@RequestBody XValueTO entity) {
         // set X value for corresponding token value in AUTH_STATE
         // generate random vector 'A' of 0 - 1 values, and update it in AUTH_STATE (len(vector) == len(public_key))
         // send back generated 'A'
         // response format: {"A": [...ints...]}
-        return Uni.createFrom().item(Response.ok("X endpoint.").build());
+        return Uni.createFrom().item(entity)
+            .onItem().produceUni(authService::generateAVector)
+            .onItem().produceUni(u -> mapToResponse(u, "token", Status.NOT_FOUND));
     }
 
     @POST
@@ -61,20 +61,6 @@ public class Alpha {
         //   "session_id": <generated session id if authenticated, null otherwise> }
         return Uni.createFrom().item(Response.ok("Y endpoint.").build());
     }
-
-//    @GET
-//    @Path("/auth")
-//    public Uni<Response> authenticate() {
-//        return Uni.createFrom().item(Response.ok("Authenticated").build());
-//    }
-//
-//    @GET
-//    @Path("/auth/{username}")
-//    public Uni<Response> authenticateUser(@PathParam String username) {
-//        return Uni.createFrom().item(username)
-//            .onItem().produceUni(authService::authenticateUser)
-//            .onItem().produceUni(u -> mapStringToResponse(u, "Authenticated " + username, "authenticateUser", Status.NOT_FOUND));
-//    }
 
     @POST
     @Path("/register")

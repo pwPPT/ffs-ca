@@ -19,7 +19,7 @@ create TABLE ffs_ca.auth_state (
     reps INTEGER NOT NULL,
     succ_tries INTEGER NOT NULL DEFAULT 0 CHECK (succ_tries >= 0),
     curr_X INTEGER DEFAULT NULL,
-    curr_A boolean ARRAY DEFAULT NULL
+    curr_A INTEGER ARRAY DEFAULT NULL
 );
 
 -- SESSIONS
