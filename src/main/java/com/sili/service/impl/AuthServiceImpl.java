@@ -4,17 +4,20 @@ import com.sili.exceptions.StateNotFoundException;
 import com.sili.exceptions.UnauthorizedException;
 import com.sili.exceptions.UserNotFoundException;
 import com.sili.model.AValueTO;
+import com.sili.model.SessionResponseTO;
 import com.sili.model.SessionTO;
 import com.sili.model.TokenTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
 import com.sili.model.YValueTO;
 import com.sili.repository.AuthStateRepository;
+import com.sili.repository.SessionRepository;
 import com.sili.repository.UserRepository;
 import com.sili.service.AuthService;
 import com.sili.service.utils.AuthUtils;
 import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.tuples.Tuple2;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
 import lombok.AllArgsConstructor;
 
@@ -24,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final AuthStateRepository authStateRepository;
+    private final SessionRepository sessionRepository;
 
     private final AuthUtils authUtils;
 
@@ -49,12 +53,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Uni<SessionTO> authenticate(YValueTO yValue) {
+    public Uni<SessionResponseTO> authenticate(YValueTO yValue) {
         // get public key from userRepository getKeyByUserId()
-        return authStateRepository.getYValueForToken(yValue.getToken())
-            .onItem().ifNull().failWith(StateNotFoundException::new)
-            .and().uni(authStateRepository.getYValueForToken(yValue.getToken())
-            .onItem().produceUni(val -> userRepository.getKeyByUserId(val.getUserId().longValue()))).asTuple()
+        Uni<AValueTO> yvalueUni = authStateRepository.getYValueForToken(yValue.getToken());
+
+        return yvalueUni.onItem().ifNull().failWith(StateNotFoundException::new)
+            .and().uni(
+                yvalueUni.onItem().produceUni(val -> userRepository.getKeyByUserId(val.getUserId().longValue())))
+            .asTuple()
             .onItem().apply(tuple -> authUtils.checkYValue(
                 tuple.getItem2(),
                 tuple.getItem1().getX(),
@@ -65,6 +71,20 @@ public class AuthServiceImpl implements AuthService {
             )
             .onItem().ifNull().failWith(UnauthorizedException::new)
             .onItem().produceUni(none -> authStateRepository.incrementSuccessTries(yValue.getToken()))
-            .onItem().apply(authUtils::isAuthorized);
+            .onItem().apply(authUtils::isAuthorized)
+            .onItem().produceUni(session -> yvalueUni.onItem().produceUni(
+                val -> handleCreatedSession(session, yValue.getToken(), val.getUserId().longValue())));
+    }
+
+    private Uni<SessionResponseTO> handleCreatedSession(SessionResponseTO session, UUID token, Long userId) {
+        System.out.println(session.getIs_authenticated());
+        if (session.getIs_authenticated()) {
+            System.out.println("SAVE SESSION");
+            return authStateRepository.removeToken(session, token)
+                .onItem().produceUni(n -> sessionRepository.saveSession(SessionTO.of(token, userId, LocalDateTime.now())))
+                .onItem().apply(s -> session);
+        }
+
+        return Uni.createFrom().item(session);
     }
 }

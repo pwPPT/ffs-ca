@@ -1,7 +1,7 @@
 package com.sili.service;
 
 import com.sili.model.AValueTO;
-import com.sili.model.SessionTO;
+import com.sili.model.SessionResponseTO;
 import com.sili.model.TokenTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
@@ -14,5 +14,5 @@ public interface AuthService {
 
     Uni<AValueTO> generateAVector(XValueTO xValue);
 
-    Uni<SessionTO> authenticate(YValueTO yValue);
+    Uni<SessionResponseTO> authenticate(YValueTO yValue);
 }

@@ -27,16 +27,16 @@ drop table IF EXISTS ffs_ca.sessions;
 
 create TABLE ffs_ca.sessions (
     token UUID PRIMARY KEY,
-    user_id REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
+    user_id INTEGER REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
     authentication_time TIMESTAMP NOT NULL DEFAULT NOW()
-)
+);
 
 -- NOTES
 drop table IF EXISTS ffs_ca.notes;
 
 create TABLE ffs_ca.notes (
     id SERIAL PRIMARY KEY,
-    user_id REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
+    user_id INTEGER REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
     note TEXT NOT NULL
 );
 

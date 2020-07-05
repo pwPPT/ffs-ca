@@ -1,13 +1,12 @@
 package com.sili.repository;
 
 import com.sili.model.AValueTO;
+import com.sili.model.SessionResponseTO;
 import com.sili.model.SuccessTO;
 import com.sili.model.TokenTO;
-import com.sili.model.YValueTO;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.RowSet;
 import java.util.Arrays;
 import java.util.List;
@@ -46,19 +45,6 @@ public class AuthStateRepository {
             row.getInteger("reps")
         );
     }
-
-//    public Uni<TokenTO> getAuthStateForToken(UUID token) {
-//        return client.preparedQuery(
-//            "SELECT * FROM " + TABLE_NAME
-//                + " WHERE token = '" + token + "'")
-//            .execute()
-//            .onItem().apply(RowSet::iterator)
-//            .onItem().apply(iterator ->
-//                iterator.hasNext()
-//                    ? from(iterator.next())
-//                    : null
-//            );
-//    }
 
     public Uni<Long> getUserId(UUID token) {
         return client.preparedQuery(
@@ -145,5 +131,17 @@ public class AuthStateRepository {
                     ? successToFrom(iterator.next())
                     : null
             );
+    }
+
+    public Uni<Boolean> removeToken(SessionResponseTO session, UUID token) {
+       if (session.getIs_authenticated()) {
+            System.out.println("TRYING TO REMOVE");
+            return client.preparedQuery(
+                "DELETE FROM " + TABLE_NAME
+                    + " WHERE token = '" + token + "'")
+                .execute()
+                .onItem().apply(pgRowSet -> pgRowSet.rowCount() == 1);
+        }
+        return Uni.createFrom().item(false);
     }
 }
