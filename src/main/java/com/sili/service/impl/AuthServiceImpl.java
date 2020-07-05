@@ -1,11 +1,14 @@
 package com.sili.service.impl;
 
 import com.sili.exceptions.StateNotFoundException;
+import com.sili.exceptions.UnauthorizedException;
 import com.sili.exceptions.UserNotFoundException;
 import com.sili.model.AValueTO;
+import com.sili.model.SessionTO;
 import com.sili.model.TokenTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
+import com.sili.model.YValueTO;
 import com.sili.repository.AuthStateRepository;
 import com.sili.repository.UserRepository;
 import com.sili.service.AuthService;
@@ -42,5 +45,15 @@ public class AuthServiceImpl implements AuthService {
             .onItem().produceUni(userRepository::getKeyByUserId)
             .onItem().apply(key -> authUtils.generateAVector(key.size()))
             .onItem().produceUni(vector -> authStateRepository.updateValues(xValue.getToken(), xValue.getX(), vector));
+    }
+
+    @Override
+    public Uni<SessionTO> authenticate(YValueTO yValue) {
+        return authStateRepository.getYValueForToken(yValue.getToken())
+            .onItem().ifNull().failWith(StateNotFoundException::new)
+            .onItem().apply(val -> authUtils.checkYValue(val.getA(), yValue.getY()))
+            .onItem().ifNull().failWith(UnauthorizedException::new)
+            .onItem().produceUni(none -> authStateRepository.incrementSuccessTries(yValue.getToken()))
+            .onItem().apply(authUtils::isAuthorized);
     }
 }

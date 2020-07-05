@@ -1,10 +1,13 @@
 package com.sili.repository;
 
 import com.sili.model.AValueTO;
+import com.sili.model.SuccessTO;
 import com.sili.model.TokenTO;
+import com.sili.model.YValueTO;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple3;
 import io.vertx.mutiny.sqlclient.Row;
+import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.RowSet;
 import java.util.Arrays;
 import java.util.List;
@@ -36,18 +39,25 @@ public class AuthStateRepository {
         );
     }
 
-    public Uni<TokenTO> getAuthStateForToken(UUID token) {
-        return client.preparedQuery(
-            "SELECT * FROM " + TABLE_NAME
-                + " WHERE token = '" + token + "'")
-            .execute()
-            .onItem().apply(RowSet::iterator)
-            .onItem().apply(iterator ->
-                iterator.hasNext()
-                    ? from(iterator.next())
-                    : null
-            );
+    private static SuccessTO successToFrom(Row row) {
+        return new SuccessTO(
+            row.getInteger("succ_tries"),
+            row.getInteger("reps")
+        );
     }
+
+//    public Uni<TokenTO> getAuthStateForToken(UUID token) {
+//        return client.preparedQuery(
+//            "SELECT * FROM " + TABLE_NAME
+//                + " WHERE token = '" + token + "'")
+//            .execute()
+//            .onItem().apply(RowSet::iterator)
+//            .onItem().apply(iterator ->
+//                iterator.hasNext()
+//                    ? from(iterator.next())
+//                    : null
+//            );
+//    }
 
     public Uni<Long> getUserId(UUID token) {
         return client.preparedQuery(
@@ -69,6 +79,19 @@ public class AuthStateRepository {
                 + " curr_a = ARRAY[" + aVector.stream().map(Object::toString).collect(Collectors.joining(",")) + "]"
                 + " WHERE token = '" + token + "'"
                 + " RETURNING curr_x, curr_a")
+            .execute()
+            .onItem().apply(RowSet::iterator)
+            .onItem().apply(iterator ->
+                iterator.hasNext()
+                    ? aValueFrom(iterator.next())
+                    : null
+            );
+    }
+
+    public Uni<AValueTO> getYValueForToken(UUID token) {
+        return client.preparedQuery(
+            "SELECT * FROM " + TABLE_NAME
+                + " WHERE token = '" + token + "'")
             .execute()
             .onItem().apply(RowSet::iterator)
             .onItem().apply(iterator ->
@@ -104,6 +127,21 @@ public class AuthStateRepository {
             .onItem().apply(iterator ->
                 iterator.hasNext()
                     ? from(iterator.next())
+                    : null
+            );
+    }
+
+    public Uni<SuccessTO> incrementSuccessTries(UUID token) {
+        return client.preparedQuery(
+            "UPDATE " + TABLE_NAME
+                + " SET succ_tries = succ_tries + 1 "
+                + " WHERE token = '" + token + "'"
+                + " RETURNING *")
+            .execute()
+            .onItem().apply(RowSet::iterator)
+            .onItem().apply(iterator ->
+                iterator.hasNext()
+                    ? successToFrom(iterator.next())
                     : null
             );
     }

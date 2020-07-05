@@ -1,5 +1,7 @@
 package com.sili.service.utils;
 
+import com.sili.model.SessionTO;
+import com.sili.model.SuccessTO;
 import io.smallrye.mutiny.tuples.Tuple3;
 import java.util.List;
 import java.util.Random;
@@ -35,5 +37,18 @@ public class AuthUtils {
             .mapToLong(Long::valueOf)
             .boxed()
             .collect(Collectors.toList());
+    }
+
+    public Boolean checkYValue(List<Integer> yVector, Long providedY) {
+        // TODO prepare check
+        return true;
+    }
+
+    public SessionTO isAuthorized(SuccessTO status) {
+        boolean repeat = status.getReps() > status.getSuccTries();
+        boolean authorized = status.getReps() == status.getSuccTries();
+        String sessionID = authorized ? UUID.randomUUID().toString() : null;
+
+        return new SessionTO(repeat, authorized, sessionID);
     }
 }

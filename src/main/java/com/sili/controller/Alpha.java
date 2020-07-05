@@ -3,6 +3,7 @@ package com.sili.controller;
 import com.sili.model.RegisterTO;
 import com.sili.model.UserTO;
 import com.sili.model.XValueTO;
+import com.sili.model.YValueTO;
 import com.sili.service.AuthService;
 import com.sili.service.RegisterService;
 import io.smallrye.mutiny.Uni;
@@ -47,19 +48,21 @@ public class Alpha {
         // response format: {"A": [...ints...]}
         return Uni.createFrom().item(entity)
             .onItem().produceUni(authService::generateAVector)
-            .onItem().produceUni(u -> mapToResponse(u, "token", Status.NOT_FOUND));
+            .onItem().produceUni(u -> mapToResponse(u, "vectorA", Status.NOT_FOUND));
     }
 
     @POST
     @Path("/Y")
-    public Uni<Response> authUser() {
+    public Uni<Response> authUser(@RequestBody YValueTO entity) {
         // verify user
         // update number of positive tries, and return response
         // response format:
         // { "repeat": <true if we want user to authenticate again, false otherwise>,
         //   "is_authenticated": <true if authentication is finished, false if not yet authenticated or authentication failed>,
         //   "session_id": <generated session id if authenticated, null otherwise> }
-        return Uni.createFrom().item(Response.ok("Y endpoint.").build());
+        return Uni.createFrom().item(entity)
+            .onItem().produceUni(authService::authenticate)
+            .onItem().produceUni(u -> mapToResponse(u, "auth", Status.UNAUTHORIZED));
     }
 
     @POST
