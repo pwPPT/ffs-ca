@@ -2,6 +2,14 @@
   quarkus:
     http:
       port: 8085
+      insecure-requests: redirect
+      ssl:
+        certificate:
+          file: /path/to/certificate
+          key-file: /path/to/key
+          key-store-file: /path/to/keystore
+          key-store-file-type: JKS
+          key-store-password: your-password
 
 #  docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 --name ffs_ca_db -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin
 #  -e POSTGRES_DB=ffs_ca -p 5432:5432 postgres:10.5
