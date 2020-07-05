@@ -49,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Uni<SessionTO> authenticate(YValueTO yValue) {
+        // get public key from userRepository getKeyByUserId()
         return authStateRepository.getYValueForToken(yValue.getToken())
             .onItem().ifNull().failWith(StateNotFoundException::new)
             .onItem().apply(val -> authUtils.checkYValue(val.getA(), yValue.getY()))

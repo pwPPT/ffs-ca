@@ -4,6 +4,7 @@ import com.sili.model.SessionTO;
 import com.sili.model.SuccessTO;
 import io.smallrye.mutiny.tuples.Tuple3;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,8 +41,20 @@ public class AuthUtils {
     }
 
     public Boolean checkYValue(List<Integer> yVector, Long providedY) {
-        // TODO prepare check
-        return true;
+    // public Boolean checkYValue(List<Integer> publicKey, Long providedX, Long providedY, List<Integer> generatedA, Long N) {
+    //     List<Long> values = new ArrayList<>();
+    //     for(int i = 0; i < publicKey.size(); i++) {
+    //         if(generatedA.get(i) == 1) {
+    //             values.add(Long.valueOf(publicKey.get(i)));
+    //         } else {
+    //             values.add(Long.valueOf(1));
+    //         }
+    //     }
+
+    //     Long y1 = values.stream().reduce(providedX, (subtotal, element) -> (subtotal * element) % N);
+    //     Long y2 = (providedY * providedY) % N;
+    //     return y1 == y2;
+    return true;
     }
 
     public SessionTO isAuthorized(SuccessTO status) {
