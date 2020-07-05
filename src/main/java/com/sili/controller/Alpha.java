@@ -1,6 +1,6 @@
 package com.sili.controller;
 
-import com.sili.exceptions.UserAlreadyExistException;
+import com.sili.model.RegisterTO;
 import com.sili.model.UserTO;
 import com.sili.service.AuthService;
 import com.sili.service.RegisterService;
@@ -8,7 +8,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.pgclient.PgException;
 import java.time.Duration;
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,7 +17,6 @@ import javax.ws.rs.core.Response.Status;
 import lombok.AllArgsConstructor;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.logging.Logger;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 @ApplicationScoped
 @AllArgsConstructor
@@ -33,10 +31,13 @@ public class Alpha {
 
     @POST
     @Path("/token")
-    public Uni<Response> getToken() {
+    public Uni<Response> getToken(@RequestBody UserTO entity) {
         // create new record in AUTH_STATE table and send back generated token (id)
         // response format: {"token": <token>}
-        return Uni.createFrom().item(Response.ok("Token endpoint.").build());
+
+        return Uni.createFrom().item(entity)
+            .onItem().produceUni(authService::generateToken)
+            .onItem().produceUni(u -> mapToResponse(u, "token", Status.NOT_FOUND));
     }
 
     @POST
@@ -61,23 +62,23 @@ public class Alpha {
         return Uni.createFrom().item(Response.ok("Y endpoint.").build());
     }
 
-    @GET
-    @Path("/auth")
-    public Uni<Response> authenticate() {
-        return Uni.createFrom().item(Response.ok("Authenticated").build());
-    }
-
-    @GET
-    @Path("/auth/{username}")
-    public Uni<Response> authenticateUser(@PathParam String username) {
-        return Uni.createFrom().item(username)
-            .onItem().produceUni(authService::authenticateUser)
-            .onItem().produceUni(u -> mapStringToResponse(u, "Authenticated " + username, "authenticateUser", Status.NOT_FOUND));
-    }
+//    @GET
+//    @Path("/auth")
+//    public Uni<Response> authenticate() {
+//        return Uni.createFrom().item(Response.ok("Authenticated").build());
+//    }
+//
+//    @GET
+//    @Path("/auth/{username}")
+//    public Uni<Response> authenticateUser(@PathParam String username) {
+//        return Uni.createFrom().item(username)
+//            .onItem().produceUni(authService::authenticateUser)
+//            .onItem().produceUni(u -> mapStringToResponse(u, "Authenticated " + username, "authenticateUser", Status.NOT_FOUND));
+//    }
 
     @POST
     @Path("/register")
-    public Uni<Response> register(@RequestBody UserTO entity) {
+    public Uni<Response> register(@RequestBody RegisterTO entity) {
         return Uni.createFrom().item(entity)
             .onItem().produceUni(registerService::registerUser)
             .onItem().produceUni(u -> mapToResponse(u, "register", Status.CONFLICT));

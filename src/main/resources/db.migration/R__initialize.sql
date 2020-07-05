@@ -14,8 +14,8 @@ drop table IF EXISTS ffs_ca.auth_state;
 
 create TABLE ffs_ca.auth_state (
     token UUID PRIMARY KEY,
-    user_id REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
-    start_time TIMESTAMP NOT NULL DEFAUTL NOW(),
+    user_id INTEGER REFERENCES ffs_ca.users (id) ON DELETE CASCADE NOT NULL,
+    start_time TIMESTAMP NOT NULL DEFAULT NOW(),
     reps INTEGER NOT NULL,
     succ_tries INTEGER NOT NULL DEFAULT 0 CHECK (succ_tries >= 0),
     curr_X INTEGER DEFAULT NULL,

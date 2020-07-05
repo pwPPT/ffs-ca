@@ -1,6 +1,6 @@
 package com.sili.exceptions;
 
-import com.sili.model.UserTO;
+import com.sili.model.RegisterTO;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Value;
@@ -10,6 +10,6 @@ import lombok.Value;
 @NoArgsConstructor
 public class UserAlreadyExistException extends RuntimeException {
 
-    public UserAlreadyExistException(UserTO user) {
+    public UserAlreadyExistException(RegisterTO user) {
     }
 }

@@ -1,7 +1,7 @@
 package com.sili.service;
 
 import com.sili.exceptions.UserAlreadyExistException;
-import com.sili.model.UserTO;
+import com.sili.model.RegisterTO;
 import com.sili.repository.UserRepository;
 import io.smallrye.mutiny.Uni;
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +13,7 @@ public class RegisterService {
 
     private final UserRepository userRepository;
 
-    public Uni<UserTO> registerUser(UserTO user) {
+    public Uni<RegisterTO> registerUser(RegisterTO user) {
         return userRepository.getUserByUsername(user.getUsername())
             .onItem().ifNull().failWith(NullPointerException::new)
             .onItem().failWith(none -> new UserAlreadyExistException())
