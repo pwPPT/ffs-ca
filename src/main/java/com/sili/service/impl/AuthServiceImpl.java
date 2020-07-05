@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
             )
             .onItem().ifNull().failWith(UnauthorizedException::new)
             .onItem().produceUni(none -> authStateRepository.incrementSuccessTries(yValue.getToken()))
-            .onItem().apply(authUtils::isAuthorized)
+            .onItem().apply(s -> authUtils.isAuthorized(s, yValue.getToken()))
             .onItem().produceUni(session -> yvalueUni.onItem().produceUni(
                 val -> handleCreatedSession(session, yValue.getToken(), val.getUserId().longValue())));
     }

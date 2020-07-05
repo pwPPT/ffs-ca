@@ -55,10 +55,10 @@ public class AuthUtils {
         return y1.equals(y2);
     }
 
-    public SessionResponseTO isAuthorized(SuccessTO status) {
+    public SessionResponseTO isAuthorized(SuccessTO status, UUID token) {
         boolean repeat = status.getReps() > status.getSuccTries();
         boolean authorized = status.getReps() == status.getSuccTries();
-        String sessionID = authorized ? UUID.randomUUID().toString() : "";
+        String sessionID = authorized ? token.toString() : "";
 
         return new SessionResponseTO(repeat, authorized, sessionID);
     }
