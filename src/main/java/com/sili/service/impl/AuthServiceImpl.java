@@ -54,13 +54,13 @@ public class AuthServiceImpl implements AuthService {
         return authStateRepository.getYValueForToken(yValue.getToken())
             .onItem().ifNull().failWith(StateNotFoundException::new)
             .and().uni(authStateRepository.getYValueForToken(yValue.getToken())
-            .onItem().produceUni(val -> userRepository.getKeyByUserId(val.getUserId()))).asTuple()
+            .onItem().produceUni(val -> userRepository.getKeyByUserId(val.getUserId().longValue()))).asTuple()
             .onItem().apply(tuple -> authUtils.checkYValue(
                 tuple.getItem2(),
                 tuple.getItem1().getX(),
                 yValue.getY(),
                 tuple.getItem1().getA(),
-                39769 * 50423
+                39769L * 50423
                 )
             )
             .onItem().ifNull().failWith(UnauthorizedException::new)

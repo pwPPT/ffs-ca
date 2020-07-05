@@ -29,7 +29,7 @@ public class AuthUtils {
 
     private int getReps() {
         // TODO define maximal number of tries in app properties
-        return new Random().nextInt(5) + 1;
+        return new Random().nextInt(5) + 3;
     }
 
     public List<Long> generateAVector(int length) {
@@ -40,27 +40,27 @@ public class AuthUtils {
             .collect(Collectors.toList());
     }
 
-    public Boolean checkYValue(List<Integer> yVector, Long providedY) {
-    // public Boolean checkYValue(List<Integer> publicKey, Long providedX, Long providedY, List<Integer> generatedA, Long N) {
-    //     List<Long> values = new ArrayList<>();
-    //     for(int i = 0; i < publicKey.size(); i++) {
-    //         if(generatedA.get(i) == 1) {
-    //             values.add(Long.valueOf(publicKey.get(i)));
-    //         } else {
-    //             values.add(Long.valueOf(1));
-    //         }
-    //     }
+    // public Boolean checkYValue(List<Integer> yVector, Long providedY) {
+    public Boolean checkYValue(List<Long> publicKey, Long providedX, Long providedY, List<Integer> generatedA, Long N) {
+        List<Long> values = new ArrayList<>();
+        for(int i = 0; i < publicKey.size(); i++) {
+            if(generatedA.get(i) == 1) {
+                values.add(Long.valueOf(publicKey.get(i)));
+            } else {
+                values.add(Long.valueOf(1));
+            }
+        }
 
-    //     Long y1 = values.stream().reduce(providedX, (subtotal, element) -> (subtotal * element) % N);
-    //     Long y2 = (providedY * providedY) % N;
-    //     return y1 == y2;
-    return true;
+        Long y1 = values.stream().reduce(providedX, (subtotal, element) -> (subtotal * element) % N);
+        Long y2 = (providedY * providedY) % N;
+        return y1 == y2;
+    // return true;
     }
 
     public SessionTO isAuthorized(SuccessTO status) {
         boolean repeat = status.getReps() > status.getSuccTries();
         boolean authorized = status.getReps() == status.getSuccTries();
-        String sessionID = authorized ? UUID.randomUUID().toString() : null;
+        String sessionID = authorized ? UUID.randomUUID().toString() : "";
 
         return new SessionTO(repeat, authorized, sessionID);
     }
