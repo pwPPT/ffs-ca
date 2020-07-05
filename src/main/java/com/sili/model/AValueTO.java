@@ -12,4 +12,5 @@ public class AValueTO {
 
     Long x;
     List<Integer> a;
+    Long userId;
 }

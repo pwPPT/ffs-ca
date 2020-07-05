@@ -35,7 +35,8 @@ public class AuthStateRepository {
     private static AValueTO aValueFrom(Row row) {
         return new AValueTO(
             row.getLong("curr_x"),
-            Arrays.asList(row.getIntegerArray("curr_a"))
+            Arrays.asList(row.getIntegerArray("curr_a")),
+            row.getInteger("user_id").longValue()
         );
     }
 

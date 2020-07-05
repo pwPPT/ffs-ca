@@ -14,6 +14,7 @@ import com.sili.repository.UserRepository;
 import com.sili.service.AuthService;
 import com.sili.service.utils.AuthUtils;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.tuples.Tuple2;
 import javax.enterprise.context.ApplicationScoped;
 import lombok.AllArgsConstructor;
 
@@ -52,7 +53,16 @@ public class AuthServiceImpl implements AuthService {
         // get public key from userRepository getKeyByUserId()
         return authStateRepository.getYValueForToken(yValue.getToken())
             .onItem().ifNull().failWith(StateNotFoundException::new)
-            .onItem().apply(val -> authUtils.checkYValue(val.getA(), yValue.getY()))
+            .and().uni(authStateRepository.getYValueForToken(yValue.getToken())
+            .onItem().produceUni(val -> userRepository.getKeyByUserId(val.getUserId()))).asTuple()
+            .onItem().apply(tuple -> authUtils.checkYValue(
+                tuple.getItem2(),
+                tuple.getItem1().getX(),
+                yValue.getY(),
+                tuple.getItem1().getA(),
+                39769 * 50423
+                )
+            )
             .onItem().ifNull().failWith(UnauthorizedException::new)
             .onItem().produceUni(none -> authStateRepository.incrementSuccessTries(yValue.getToken()))
             .onItem().apply(authUtils::isAuthorized);
